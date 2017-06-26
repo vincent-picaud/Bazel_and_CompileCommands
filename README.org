@@ -1,0 +1,627 @@
+#+OPTIONS: H:3 toc:t num:t \n:nil ::t |:t ^:nil -:t f:t *:t tex:t d:t tags:not-in-toc
+#+TITLE: Bazel And Compile Commands
+
+# Default Babel 
+
+* Aims
+
+  I generally use [[https://cmake.org/][CMake]] for my C++ developpements, but I recently have
+  a look at [[https://bazel.build/][Bazel]] from Google.  I want to use it a little bit to make
+  my opinion. If you are like me and use tools like [[https://clang.llvm.org/docs/ClangTools.html][Clang]], [[https://github.com/Andersbakken/rtags][RTags]],
+  ... you need to generate a =compile_commands.json= file. This is
+  [[https://clang.llvm.org/docs/JSONCompilationDatabase.html#supported-systems][trivial with CMake]], but IFAIK Bazel does not provide such native
+  support.
+
+  I have found this [[https://gist.github.com/bsilver8192/0115ee5d040bb601e3b7][Basics of generating a compile_commands.json file
+  with Bazel]] gist from *bsilver8192*. The comment of *mmlac* was also
+  very useful to understand how to use this gist.
+
+  The aim of this post is to provide shell scripts that automate the
+  procedure to add a =compile_commands.json= generation facility to
+  your C++ Bazel project.  I have not modified the *bsilver8192*
+  initial post but only packaged it into bash scripts for ease of use.
+
+
+** Dependencies
+
+   I am running under Linux, Debian testing distro. In peculiar I have the following packages installed:
+   - =protobuf-compiler=
+   - =python-protobuf=
+
+** Usage
+
+   I define [[id:a8dcc49f-28c4-476f-b8c7-e7014fa0fcf3][two shell scripts]]. One is used to set up the Bazel project
+   root directory, the other one is used to generate the
+   =compile_commands.json= file.
+
+   I hope that they will work out of the box, at least for
+   configurations similar to mine.
+
+* Directories and files creation
+  :PROPERTIES:
+  :ID:       5471235a-5ff5-400c-9234-ad3c17c62f14
+  :END:
+
+  In order to be able to generate the =compile_commands.json= file some
+  helper files must be created in the Bazel project root directory. We
+  follow the procedure described in the [[https://gist.github.com/bsilver8192/0115ee5d040bb601e3b7][Basics of generating a
+  compile_commands.json file with Bazel]] gist.
+
+
+** The =tools/actions/= directory
+
+*** The =BUILD= file
+
+    This file is a direct copy of the [[https://gist.github.com/bsilver8192/0115ee5d040bb601e3b7][Basics of generating a compile_commands.json file with Bazel]] gist file.
+
+    #+NAME: tools/actions/BUILD
+    #+BEGIN_SRC text :exports code
+py_binary(
+  name = 'generate_compile_command',
+  srcs = [
+    'generate_compile_command.py',
+  ],
+  deps = [
+    '//third_party/bazel:extra_actions_proto_py',
+  ],
+)
+
+action_listener(
+  name = 'generate_compile_commands_listener',
+  visibility = ['//visibility:public'],
+  mnemonics = [
+    'CppCompile',
+  ],
+  extra_actions = [':generate_compile_commands_action'],
+)
+
+extra_action(
+  name = 'generate_compile_commands_action',
+  tools = [
+    ':generate_compile_command',
+  ],
+  out_templates = [
+    '$(ACTION_ID)_compile_command',
+  ],
+  cmd = '$(location :generate_compile_command) $(EXTRA_ACTION_FILE)' +
+        ' $(output $(ACTION_ID)_compile_command)',
+)
+    #+END_SRC
+
+
+    #+HEADER: :noweb-ref setup_compile_commands.sh
+    #+BEGIN_SRC sh :exports none 
+current_file=tools/actions/BUILD
+if [ ! -f "${current_file}" ]; then
+    current_file_dir="$(dirname "${current_file}")"
+
+    mkdir -p "${current_file_dir}"
+    echo "Create ${current_file}" 1>&2
+    more > "${current_file}" <<'//MY_CODE_STREAM' 
+<<tools/actions/BUILD>>
+//MY_CODE_STREAM
+else 
+echo "File ${current_file} already exists, aborted!" 
+exit 1
+fi
+    #+END_SRC
+
+
+*** The =generate_compile_command.py= file
+
+    This file is a direct copy of the [[https://gist.github.com/bsilver8192/0115ee5d040bb601e3b7][Basics of generating a compile_commands.json file with Bazel]] gist file.
+
+    #+NAME: tools/actions/generate_compile_command.py
+    #+BEGIN_SRC python :exports code
+# This is the implementation of a Bazel extra_action which genenerates
+# _compile_command files for generate_compile_commands.py to consume.
+
+import sys
+
+import third_party.bazel.protos.extra_actions_base_pb2 as extra_actions_base_pb2
+
+def _get_cpp_command(cpp_compile_info):
+  compiler = cpp_compile_info.tool
+  options = ' '.join(cpp_compile_info.compiler_option)
+  source = cpp_compile_info.source_file
+  output = cpp_compile_info.output_file
+  return '%s %s -c %s -o %s' % (compiler, options, source, output), source
+
+def main(argv):
+  action = extra_actions_base_pb2.ExtraActionInfo()
+  with open(argv[1], 'rb') as f:
+    action.MergeFromString(f.read())
+    command, source_file = _get_cpp_command(
+      action.Extensions[extra_actions_base_pb2.CppCompileInfo.cpp_compile_info])
+  with open(argv[2], 'w') as f:
+    f.write(command)
+    f.write('\0')
+    f.write(source_file)
+
+if __name__ == '__main__':
+  sys.exit(main(sys.argv))
+    #+END_SRC
+
+    #+HEADER: :noweb-ref setup_compile_commands.sh
+    #+BEGIN_SRC sh :exports none
+current_file=tools/actions/generate_compile_command.py
+if [ ! -f "${current_file}" ]; then
+    current_file_dir="$(dirname "${current_file}")"
+
+    mkdir -p "${current_file_dir}"
+    echo "Create ${current_file}" 1>&2
+    more > "${current_file}" <<'//MY_CODE_STREAM' 
+<<tools/actions/generate_compile_command.py>>
+//MY_CODE_STREAM
+else 
+echo "File ${current_file} already exists, aborted!" 
+exit 1
+fi
+    #+END_SRC
+
+*** The =generate_compile_commands_json.py= file
+
+    This file is a direct copy of the [[https://gist.github.com/bsilver8192/0115ee5d040bb601e3b7][Basics of generating a compile_commands.json file with Bazel]] gist file.
+
+    #+NAME: tools/actions/generate_compile_commands_json.py
+    #+BEGIN_SRC python :exports code
+#!/usr/bin/python3
+
+# This reads the _compile_command files :generate_compile_commands_action
+# generates a outputs a compile_commands.json file at the top of the source
+# tree for things like clang-tidy to read.
+
+# Overall usage directions: run bazel with
+# --experimental_action_listener=//tools/actions:generate_compile_commands_listener
+# for all the files you want to use clang-tidy with and then run this script.
+# Afer that, `clang-tidy build_tests/gflags.cc` should work.
+
+import sys
+import pathlib
+import os.path
+import subprocess
+
+'''
+Args:
+  path: The pathlib.Path to _compile_command file.
+  command_directory: The directory commands are run from.
+Returns a string to stick in compile_commands.json.
+'''
+def _get_command(path, command_directory):
+  with path.open('r') as f:
+    contents = f.read().split('\0')
+    if len(contents) != 2:
+      # Old/incomplete file or something; silently ignore it.
+      return None
+    return '''{
+        "directory": "%s",
+        "command": "%s",
+        "file": "%s",
+      },''' % (command_directory, contents[0].replace('"', '\\"'), contents[1])
+
+'''
+Args:
+  path: A directory pathlib.Path to look for _compile_command files under.
+  command_directory: The directory commands are run from.
+Yields strings to stick in compile_commands.json.
+'''
+def _get_compile_commands(path, command_directory):
+  for f in path.iterdir():
+    if f.is_dir():
+      yield from _get_compile_commands(f, command_directory)
+    elif f.name.endswith('_compile_command'):
+      command = _get_command(f, command_directory)
+      if command:
+        yield command
+
+def main(argv):
+  source_path = os.path.join(os.path.dirname(__file__), '../..')
+  action_outs = os.path.join(source_path,
+                             'bazel-bin/../extra_actions',
+                             'tools/actions/generate_compile_commands_action')
+  command_directory = subprocess.check_output(
+    ('bazel', 'info', 'execution_root'),
+    cwd=source_path).decode('utf-8').rstrip()
+  commands = _get_compile_commands(pathlib.Path(action_outs), command_directory)
+  with open(os.path.join(source_path, 'compile_commands.json'), 'w') as f:
+    f.write('[')
+    for command in commands:
+      f.write(command)
+      f.write(']')
+
+if __name__ == '__main__':
+  sys.exit(main(sys.argv))
+    #+END_SRC
+
+    #+HEADER: :noweb-ref setup_compile_commands.sh
+    #+BEGIN_SRC sh :exports none
+current_file=tools/actions/generate_compile_commands_json.py
+if [ ! -f "${current_file}" ]; then
+    current_file_dir="$(dirname "${current_file}")"
+
+    mkdir -p "${current_file_dir}"
+    echo "Create ${current_file}" 1>&2
+    more > "${current_file}" <<'//MY_CODE_STREAM' 
+<<tools/actions/generate_compile_commands_json.py>>
+//MY_CODE_STREAM
+else 
+echo "File ${current_file} already exists, aborted!" 
+exit 1
+fi
+    #+END_SRC
+
+** The =third_party/bazel= directory
+
+*** The =protos/extra_actions_base_pb2.py= file
+
+    This step requires the =bazel/src/main/protobuf/extra_actions_base.proto= file from the
+    =bazel= source. Its last version can be downloaded using:
+
+    #+BEGIN_SRC sh :eval never :exports code
+wget https://raw.githubusercontent.com/bazelbuild/bazel/master/src/main/protobuf/extra_actions_base.proto
+    #+END_SRC
+
+    This is a temporary file required to generate the =protos/extra_actions_base_pb2.py= file.
+
+    In the current script and in order to be consistent with the
+    previous parts, I do *not* download this file. Instead I directly
+    embed it in the shell script.
+
+    #+NAME: third_party/bazel/protos/extra_actions_base.proto
+    #+BEGIN_SRC protobuf :exports code
+// Copyright 2014 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// proto definitions for the blaze extra_action feature.
+
+syntax = "proto2";
+
+package blaze;
+
+option java_multiple_files = true;
+option java_package = "com.google.devtools.build.lib.actions.extra";
+
+// A list of extra actions and metadata for the print_action command.
+message ExtraActionSummary {
+  repeated DetailedExtraActionInfo action = 1;
+}
+
+// An individual action printed by the print_action command.
+message DetailedExtraActionInfo {
+  // If the given action was included in the output due to a request for a
+  // specific file, then this field contains the name of that file so that the
+  // caller can correctly associate the extra action with that file.
+  //
+  // The data in this message is currently not sufficient to run the action on a
+  // production machine, because not all necessary input files are identified,
+  // especially for C++.
+  //
+  // There is no easy way to fix this; we could require that all header files
+  // are declared and then add all of them here (which would be a huge superset
+  // of the files that are actually required), or we could run the include
+  // scanner and add those files here.
+  optional string triggering_file = 1;
+  // The actual action.
+  required ExtraActionInfo action = 2;
+}
+
+// Provides information to an extra_action on the original action it is
+// shadowing.
+message ExtraActionInfo {
+  extensions 1000 to max;
+
+  // The label of the ActionOwner of the shadowed action.
+  optional string owner = 1;
+
+  // Only set if the owner is an Aspect.
+  // Corresponds to AspectValue.AspectKey.getAspectClass.getName()
+  // This field is deprecated as there might now be
+  // multiple aspects applied to the same target.
+  // This is the aspect name of the last aspect
+  // in 'aspects' (8) field.
+  optional string aspect_name = 6 [deprecated = true];
+
+  // Only set if the owner is an Aspect.
+  // Corresponds to AspectValue.AspectKey.getParameters()
+  // This field is deprecated as there might now be
+  // multiple aspects applied to the same target.
+  // These are the aspect parameters of the last aspect
+  // in 'aspects' (8) field.
+  map<string, StringList> aspect_parameters = 7 [deprecated = true];
+  message StringList {
+    option deprecated = true;
+    repeated string value = 1;
+  }
+
+  message AspectDescriptor {
+    // Corresponds to AspectDescriptor.getName()
+    optional string aspect_name = 1;
+    // Corresponds to AspectDescriptor.getParameters()
+    map<string, StringList> aspect_parameters = 2;
+    message StringList {
+      repeated string value = 1;
+    }
+  }
+
+  // If the owner is an aspect, all aspects applied to the target
+  repeated AspectDescriptor aspects = 8;
+
+  // An id uniquely describing the shadowed action at the ActionOwner level.
+  optional string id = 2;
+
+  // The mnemonic of the shadowed action. Used to distinguish actions with the
+  // same ActionType.
+  optional string mnemonic = 5;
+}
+
+message EnvironmentVariable {
+  // It is possible that this name is not a valid variable identifier.
+  required string name = 1;
+  // The value is unescaped and unquoted.
+  required string value = 2;
+}
+
+// Provides access to data that is specific to spawn actions.
+// Usually provided by actions using the "Spawn" & "Genrule" Mnemonics.
+message SpawnInfo {
+  extend ExtraActionInfo {
+    optional SpawnInfo spawn_info = 1003;
+  }
+
+  repeated string argument = 1;
+  // A list of environment variables and their values. No order is enforced.
+  repeated EnvironmentVariable variable = 2;
+  repeated string input_file = 4;
+  repeated string output_file = 5;
+}
+
+// Provides access to data that is specific to C++ compile actions.
+// Usually provided by actions using the "CppCompile" Mnemonic.
+message CppCompileInfo {
+  extend ExtraActionInfo {
+    optional CppCompileInfo cpp_compile_info = 1001;
+  }
+
+  optional string tool = 1;
+  repeated string compiler_option = 2;
+  optional string source_file = 3;
+  optional string output_file = 4;
+  // Due to header discovery, this won't include headers unless the build is
+  // actually performed. If set, this field will include the value of
+  // "source_file" in addition to the headers.
+  repeated string sources_and_headers = 5;
+  // A list of environment variables and their values. No order is enforced.
+  repeated EnvironmentVariable variable = 6;
+}
+
+// Provides access to data that is specific to C++ link  actions.
+// Usually provided by actions using the "CppLink" Mnemonic.
+message CppLinkInfo {
+  extend ExtraActionInfo {
+    optional CppLinkInfo cpp_link_info = 1002;
+  }
+
+  repeated string input_file = 1;
+  optional string output_file = 2;
+  optional string interface_output_file = 3;
+  optional string link_target_type = 4;
+  optional string link_staticness = 5;
+  repeated string link_stamp = 6;
+  repeated string build_info_header_artifact = 7;
+  // The list of command line options used for running the linking tool.
+  repeated string link_opt = 8;
+}
+
+// Provides access to data that is specific to java compile actions.
+// Usually provided by actions using the "Javac" Mnemonic.
+message JavaCompileInfo {
+  extend ExtraActionInfo {
+    optional JavaCompileInfo java_compile_info = 1000;
+  }
+
+  optional string outputjar = 1;
+  repeated string classpath = 2;
+  repeated string sourcepath = 3;
+  repeated string source_file = 4;
+  repeated string javac_opt = 5;
+  repeated string processor = 6;
+  repeated string processorpath = 7;
+  repeated string bootclasspath = 8;
+}
+
+// Provides access to data that is specific to python rules.
+// Usually provided by actions using the "Python" Mnemonic.
+message PythonInfo {
+  extend ExtraActionInfo {
+    optional PythonInfo python_info = 1005;
+  }
+
+  repeated string source_file = 1;
+  repeated string dep_file = 2;
+}
+    #+END_SRC
+
+    #+HEADER: :noweb-ref setup_compile_commands.sh
+    #+BEGIN_SRC sh :exports none
+current_file=third_party/bazel/protos/extra_actions_base.proto
+if [ ! -f "${current_file}" ]; then
+    current_file_dir="$(dirname "${current_file}")"
+
+    mkdir -p "${current_file_dir}"
+    echo "Create ${current_file}" 1>&2
+    more > "${current_file}" <<'//MY_CODE_STREAM' 
+<<third_party/bazel/protos/extra_actions_base.proto>>
+//MY_CODE_STREAM
+else 
+echo "File ${current_file} already exists, aborted!" 
+exit 1
+fi
+    #+END_SRC
+
+    The command to generate =extra_actions_base_pb2.py= from the
+    =extra_actions_base.proto= file is:
+
+    #+HEADER: :noweb-ref setup_compile_commands.sh
+    #+BEGIN_SRC sh :noweb yes :exports code
+echo "Generate third_party/bazel/protos/extra_actions_base_pb2.py" 1>&2
+protoc third_party/bazel/protos/extra_actions_base.proto --python_out=.
+    #+END_SRC
+
+*** The =BUILD= file
+
+    We register this generated file thanks to a simple =BUILD= file:
+
+    #+NAME: third_party/bazel/BUILD
+    #+BEGIN_SRC text :exports code
+licenses(["notice"])
+
+py_library(
+    name = "extra_actions_proto_py",
+    srcs = ["protos/extra_actions_base_pb2.py"],
+    visibility = ["//visibility:public"],
+)
+    #+END_SRC
+
+    #+HEADER: :noweb-ref setup_compile_commands.sh
+    #+BEGIN_SRC sh :exports none
+current_file=third_party/bazel/BUILD
+if [ ! -f "${current_file}" ]; then
+    current_file_dir="$(dirname "${current_file}")"
+
+    mkdir -p "${current_file_dir}"
+    echo "Create ${current_file}" 1>&2
+    more > "${current_file}" <<'//MY_CODE_STREAM' 
+<<third_party/bazel/BUILD>>
+//MY_CODE_STREAM
+else 
+echo "File ${current_file} already exists, aborted!" 
+exit 1
+fi
+    #+END_SRC
+
+* Automation with shell scripts
+  :PROPERTIES:
+  :ID:       a8dcc49f-28c4-476f-b8c7-e7014fa0fcf3
+  :END:
+
+  We define two shell scripts to automate the process:
+  - [[id:a0627f88-c39b-4e38-b9f0-393a12bb6d4d][=setup_compile_commands.sh=]]: initial setup
+  - [[id:473b09c5-65e3-4921-9ab8-a1c359a04c57][=create_compile_commands.sh=]]: =compile_commands.json= file creation
+
+** The =setup_compile_commands.sh= script
+   :PROPERTIES:
+   :ID:       a0627f88-c39b-4e38-b9f0-393a12bb6d4d
+   :END:
+ 
+   The =setup_compile_commands.sh= script must be run only once, it
+   copies and generates all the required the files (see
+   [[id:5471235a-5ff5-400c-9234-ad3c17c62f14][Directories and files
+   creation]] )
+
+   The main trick is to use
+
+   #+BEGIN_SRC sh :exports code
+#!/bin/sh
+
+more > "a_file.txt" <<'//MY_CODE_STREAM' 
+Whatever you want 
+    Whatever you want 
+//MY_CODE_STREAM
+   #+END_SRC
+
+   to perform verbatim copies.
+
+   Note that for usage safety we stop the script if any of the file to be
+   created already exists.  We also check if the current directory
+   contains the =WORKSPACE= file. Finally, thanks to the =set -e= option
+   any command with a non-zero status stops the script too.
+
+   #+BEGIN_SRC sh :exports none :noweb yes :tangle setup_compile_commands.sh :shebang #!/bin/sh :tangle-mode (identity #o555)
+# 
+set -e
+
+if [ ! -f "WORKSPACE" ]; then
+    echo "Not in a Bazel root directory (WORKSPACE file does not exist), aborted!" 
+    exit 1
+fi
+
+<<setup_compile_commands.sh>>
+
+exit 0
+   #+END_SRC
+
+*** Usage example:
+
+    In a Bazel root directory (where the =WORKSPACE= file is) run:
+
+    #+BEGIN_SRC sh :eval never
+setup_compile_commands.sh
+    #+END_SRC
+
+    The script should print
+    #+BEGIN_EXAMPLE
+Create tools/actions/BUILD
+Create tools/actions/generate_compile_command.py
+Create tools/actions/generate_compile_commands_json.py
+Create third_party/bazel/protos/extra_actions_base.proto
+Generate third_party/bazel/protos/extra_actions_base_pb2.py
+Create third_party/bazel/BUILD
+    #+END_EXAMPLE
+
+    and generate the following files
+    #+BEGIN_EXAMPLE
+.
+├── third_party
+│   └── bazel
+│       ├── BUILD
+│       └── protos
+│           ├── extra_actions_base_pb2.py
+│           └── extra_actions_base.proto
+└── tools
+    └── actions
+        ├── BUILD
+        ├── generate_compile_command.py
+        └── generate_compile_commands_json.py
+
+5 directories, 6 files
+    #+END_EXAMPLE
+
+
+** The =create_compile_commands.sh= script
+   :PROPERTIES:
+   :ID:       473b09c5-65e3-4921-9ab8-a1c359a04c57
+   :END:
+
+   After having successfully used the [[id:a0627f88-c39b-4e38-b9f0-393a12bb6d4d][The =setup_compile_commands.sh= script]] you
+   can generate all the =compile_commands.json= files you want thanks to
+   the =create_compile_commands.sh= script.
+
+   This script is simply:
+
+   #+BEGIN_SRC sh :tangle create_compile_commands.sh :shebang #!/bin/sh :tangle-mode (identity #o555) :exports both
+#!/bin/sh
+#
+set -e
+bazel build --experimental_action_listener=//tools/actions:generate_compile_commands_listener $1
+python3 ./tools/actions/generate_compile_commands_json.py
+   #+END_SRC
+
+*** Usage example:
+
+    For instance, to generate everything you can use
+
+    #+BEGIN_SRC sh :eval never :exports code
+create_compile_commands.sh ...
+    #+END_SRC
+
