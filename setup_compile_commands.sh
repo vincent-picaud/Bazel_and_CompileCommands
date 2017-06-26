@@ -1,5 +1,4 @@
 #!/bin/sh
-# 
 set -e
 
 if [ ! -f "WORKSPACE" ]; then

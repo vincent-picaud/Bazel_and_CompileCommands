@@ -1,5 +1,6 @@
 #+BLOG: wordpress
 #+POSTID: 790
+#+CATEGORY: Cpp, CMake, Bazel
 #+DATE: [2017-06-26 Mon 16:16]
 #+OPTIONS: H:3 toc:t num:t \n:nil ::t |:t ^:nil -:t f:t *:t tex:t d:t tags:not-in-toc
 #+TITLE: Bazel And Compile Commands
@@ -552,7 +553,6 @@ Whatever you want
    any command with a non-zero status stops the script too.
 
    #+BEGIN_SRC sh :exports none :noweb yes :tangle setup_compile_commands.sh :shebang #!/bin/sh :tangle-mode (identity #o555)
-# 
 set -e
 
 if [ ! -f "WORKSPACE" ]; then
@@ -614,8 +614,6 @@ Create third_party/bazel/BUILD
    This script is simply:
 
    #+BEGIN_SRC sh :tangle create_compile_commands.sh :shebang #!/bin/sh :tangle-mode (identity #o555) :exports both
-#!/bin/sh
-#
 set -e
 bazel build --experimental_action_listener=//tools/actions:generate_compile_commands_listener $1
 python3 ./tools/actions/generate_compile_commands_json.py
