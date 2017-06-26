@@ -1,3 +1,6 @@
+#+BLOG: wordpress
+#+POSTID: 790
+#+DATE: [2017-06-26 Mon 16:16]
 #+OPTIONS: H:3 toc:t num:t \n:nil ::t |:t ^:nil -:t f:t *:t tex:t d:t tags:not-in-toc
 #+TITLE: Bazel And Compile Commands
 
@@ -21,6 +24,7 @@
   your C++ Bazel project.  I have not modified the *bsilver8192*
   initial post but only packaged it into bash scripts for ease of use.
 
+  You can find the tangled scripts from my Org-Emacs file in this [[https://github.com/vincent-picaud/Bazel_and_CompileCommands][GitHub Repo]].
 
 ** Dependencies
 
