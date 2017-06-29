@@ -92,11 +92,13 @@ Create third_party/bazel/BUILD
     script it is very easy to generate the =compile_commands.json=
     file. 
 
- Choose a =Bazel= target *A_BAZEL_TARGET*, like =...= or =//my:target= and run:
+ Choose a A_BAZEL_TARGET like =...= or =//my:target= and run:
 
     #+BEGIN_SRC sh :eval never :exports code
 create_compile_commands.sh A_BAZEL_TARGET
     #+END_SRC
+
+    The script should generate your =compile_commands.json= file.
 
 * The Shell scripts
 
