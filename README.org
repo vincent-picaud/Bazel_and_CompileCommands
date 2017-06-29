@@ -48,8 +48,9 @@
 *** The =setup_compile_commands.sh= script
  
     The =setup_compile_commands.sh= script must be run only once, it
-    copies and generates all the required files (see [[Files_2_Create][Directories
-    and files creation]]).
+    copies and generates all the required files, see
+    [[id:bfca60c5-5d7b-4f87-a223-d714e1b16453][Directories and files creation (Annex)]]
+    for details.
 
     In a Bazel root directory (where the =WORKSPACE= file is) run:
 
@@ -152,7 +153,9 @@ python3 ./tools/actions/generate_compile_commands_json.py
 
 
 * Directories and files creation (Annex)
-  <<Files_2_Create>>
+  :PROPERTIES:
+  :ID:       bfca60c5-5d7b-4f87-a223-d714e1b16453
+  :END:
 
   This part lists all the copied or generated files.
 
