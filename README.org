@@ -9,11 +9,11 @@
 
 * Aims
 
-  I generally use [[https://cmake.org/][CMake]] for my C++ developpements, but I recently have
+  I generally use [[https://cmake.org/][CMake]] for my C++ developments, but I recently have
   a look at [[https://bazel.build/][Bazel]] from Google.  I want to use it a little bit to make
   my opinion. If you are like me and use tools like [[https://clang.llvm.org/docs/ClangTools.html][Clang]], [[https://github.com/Andersbakken/rtags][RTags]],
   ... you need to generate a =compile_commands.json= file. This is
-  [[https://clang.llvm.org/docs/JSONCompilationDatabase.html#supported-systems][trivial with CMake]], but IFAIK Bazel does not provide such native
+  [[https://clang.llvm.org/docs/JSONCompilationDatabase.html#supported-systems][trivial with CMake]], but AFAIK Bazel does not provide such native
   support.
 
   I have found this [[https://gist.github.com/bsilver8192/0115ee5d040bb601e3b7][Basics of generating a compile_commands.json file
@@ -29,7 +29,7 @@
 
 ** Dependencies
 
-   I am running under Linux, Debian testing distro. In peculiar I have the following packages installed:
+   I am running under Linux, Debian testing distribution. In peculiar I have the following packages installed:
    - =protobuf-compiler=
    - =python-protobuf=
 
@@ -118,7 +118,7 @@ fi
 
     #+NAME: tools/actions/generate_compile_command.py
     #+BEGIN_SRC python :exports code
-# This is the implementation of a Bazel extra_action which genenerates
+# This is the implementation of a Bazel extra_action which generates
 # _compile_command files for generate_compile_commands.py to consume.
 
 import sys
@@ -176,10 +176,10 @@ fi
 # generates a outputs a compile_commands.json file at the top of the source
 # tree for things like clang-tidy to read.
 
-# Overall usage directions: run bazel with
+# Overall usage directions: run Bazel with
 # --experimental_action_listener=//tools/actions:generate_compile_commands_listener
 # for all the files you want to use clang-tidy with and then run this script.
-# Afer that, `clang-tidy build_tests/gflags.cc` should work.
+# After that, `clang-tidy build_tests/gflags.cc` should work.
 
 import sys
 import pathlib
