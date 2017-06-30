@@ -55,7 +55,7 @@ if [ ! -f "${current_file}" ]; then
     mkdir -p "${current_file_dir}"
     echo "Create ${current_file}" 1>&2
     more > "${current_file}" <<'//MY_CODE_STREAM' 
-# This is the implementation of a Bazel extra_action which genenerates
+# This is the implementation of a Bazel extra_action which generates
 # _compile_command files for generate_compile_commands.py to consume.
 
 import sys
@@ -100,10 +100,10 @@ if [ ! -f "${current_file}" ]; then
 # generates a outputs a compile_commands.json file at the top of the source
 # tree for things like clang-tidy to read.
 
-# Overall usage directions: run bazel with
+# Overall usage directions: run Bazel with
 # --experimental_action_listener=//tools/actions:generate_compile_commands_listener
 # for all the files you want to use clang-tidy with and then run this script.
-# Afer that, `clang-tidy build_tests/gflags.cc` should work.
+# After that, `clang-tidy build_tests/gflags.cc` should work.
 
 import sys
 import pathlib

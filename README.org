@@ -149,10 +149,18 @@ exit 0
 
    #+BEGIN_SRC sh :tangle create_compile_commands.sh :shebang #!/bin/sh :tangle-mode (identity #o555) :exports both
 set -e
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $(basename $0) BAZEL_TARGET"
+    exit 1
+fi
+
 bazel build --experimental_action_listener=//tools/actions:generate_compile_commands_listener $1
 python3 ./tools/actions/generate_compile_commands_json.py
+exit 0
    #+END_SRC
 
+We added an error message in case the caller did not define a Bazel target ($1="")
 
 * Directories and files creation (Annex)
   :PROPERTIES:
