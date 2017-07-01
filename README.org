@@ -348,7 +348,7 @@ def main(argv):
     f.write('[')
     for command in commands:
       f.write(command)
-      f.write(']')
+    f.write(']')
 
 if __name__ == '__main__':
   sys.exit(main(sys.argv))
