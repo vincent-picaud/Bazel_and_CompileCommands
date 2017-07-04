@@ -125,7 +125,7 @@ def _get_command(path, command_directory):
     return '''{
         "directory": "%s",
         "command": "%s",
-        "file": "%s",
+        "file": "%s"
       },''' % (command_directory, contents[0].replace('"', '\\"'), contents[1])
 
 '''
