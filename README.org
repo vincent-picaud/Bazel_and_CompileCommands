@@ -100,9 +100,7 @@ create_compile_commands.sh A_BAZEL_TARGET
 
     The script should generate your =compile_commands.json= file.
 
-* The Shell scripts
-
-This section describes the content of the two Shell scripts.
+* More details about the shell scripts
 
 ** The =setup_compile_commands.sh= script
  
@@ -128,12 +126,23 @@ Whatever you want
    contains the =WORKSPACE= file. Finally, thanks to the =set -e= option
    any command with a non-zero status stops the script too.
 
+   If you want to overwrite files you can use the "-f" option:
+#+BEGIN_SRC sh :eval never :exports code
+setup_compile_commands.sh -f
+#+END_SRC
+
    #+BEGIN_SRC sh :exports none :noweb yes :tangle setup_compile_commands.sh :shebang #!/bin/sh :tangle-mode (identity #o555)
 set -e
 
 if [ ! -f "WORKSPACE" ]; then
     echo "Not in a Bazel root directory (WORKSPACE file does not exist), aborted!" 
     exit 1
+fi
+
+force=0
+
+if [ "$1" = "-f" ]; then
+  force=1
 fi
 
 <<setup_compile_commands.sh>>
@@ -213,7 +222,7 @@ extra_action(
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none 
 current_file=tools/actions/BUILD
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -222,7 +231,7 @@ if [ ! -f "${current_file}" ]; then
 <<tools/actions/BUILD>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -266,7 +275,7 @@ if __name__ == '__main__':
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=tools/actions/generate_compile_command.py
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -275,7 +284,7 @@ if [ ! -f "${current_file}" ]; then
 <<tools/actions/generate_compile_command.py>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -357,7 +366,7 @@ if __name__ == '__main__':
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=tools/actions/generate_compile_commands_json.py
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -366,7 +375,7 @@ if [ ! -f "${current_file}" ]; then
 <<tools/actions/generate_compile_commands_json.py>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -576,7 +585,7 @@ message PythonInfo {
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=third_party/bazel/protos/extra_actions_base.proto
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -585,7 +594,7 @@ if [ ! -f "${current_file}" ]; then
 <<third_party/bazel/protos/extra_actions_base.proto>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -617,7 +626,7 @@ py_library(
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=third_party/bazel/BUILD
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -626,7 +635,7 @@ if [ ! -f "${current_file}" ]; then
 <<third_party/bazel/BUILD>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC

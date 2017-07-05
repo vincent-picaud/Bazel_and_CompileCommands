@@ -6,8 +6,14 @@ if [ ! -f "WORKSPACE" ]; then
     exit 1
 fi
 
+force=0
+
+if [ "$1" = "-f" ]; then
+  force=1
+fi
+
 current_file=tools/actions/BUILD
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -45,11 +51,11 @@ extra_action(
 )
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
 exit 1
 fi
 current_file=tools/actions/generate_compile_command.py
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -84,11 +90,11 @@ if __name__ == '__main__':
   sys.exit(main(sys.argv))
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
 exit 1
 fi
 current_file=tools/actions/generate_compile_commands_json.py
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -162,11 +168,11 @@ if __name__ == '__main__':
   sys.exit(main(sys.argv))
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
 exit 1
 fi
 current_file=third_party/bazel/protos/extra_actions_base.proto
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -355,13 +361,13 @@ message PythonInfo {
 }
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
 exit 1
 fi
 echo "Generate third_party/bazel/protos/extra_actions_base_pb2.py" 1>&2
 protoc third_party/bazel/protos/extra_actions_base.proto --python_out=.
 current_file=third_party/bazel/BUILD
-if [ ! -f "${current_file}" ]; then
+if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
     current_file_dir="$(dirname "${current_file}")"
 
     mkdir -p "${current_file_dir}"
@@ -376,7 +382,7 @@ py_library(
 )
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted!" 
+echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
 exit 1
 fi
 
