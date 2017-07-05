@@ -222,16 +222,16 @@ extra_action(
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none 
 current_file=tools/actions/BUILD
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 <<tools/actions/BUILD>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -275,16 +275,16 @@ if __name__ == '__main__':
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=tools/actions/generate_compile_command.py
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 <<tools/actions/generate_compile_command.py>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -366,16 +366,16 @@ if __name__ == '__main__':
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=tools/actions/generate_compile_commands_json.py
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 <<tools/actions/generate_compile_commands_json.py>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -585,16 +585,16 @@ message PythonInfo {
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=third_party/bazel/protos/extra_actions_base.proto
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 <<third_party/bazel/protos/extra_actions_base.proto>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC
@@ -626,16 +626,16 @@ py_library(
     #+HEADER: :noweb-ref setup_compile_commands.sh
     #+BEGIN_SRC sh :exports none
 current_file=third_party/bazel/BUILD
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 <<third_party/bazel/BUILD>>
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
     #+END_SRC

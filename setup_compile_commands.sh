@@ -13,12 +13,12 @@ if [ "$1" = "-f" ]; then
 fi
 
 current_file=tools/actions/BUILD
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 py_binary(
   name = 'generate_compile_command',
   srcs = [
@@ -51,16 +51,16 @@ extra_action(
 )
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
 current_file=tools/actions/generate_compile_command.py
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 # This is the implementation of a Bazel extra_action which generates
 # _compile_command files for generate_compile_commands.py to consume.
 
@@ -90,16 +90,16 @@ if __name__ == '__main__':
   sys.exit(main(sys.argv))
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
 current_file=tools/actions/generate_compile_commands_json.py
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 #!/usr/bin/python3
 
 # This reads the _compile_command files :generate_compile_commands_action
@@ -168,16 +168,16 @@ if __name__ == '__main__':
   sys.exit(main(sys.argv))
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
 current_file=third_party/bazel/protos/extra_actions_base.proto
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 // Copyright 2014 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -361,18 +361,18 @@ message PythonInfo {
 }
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
 echo "Generate third_party/bazel/protos/extra_actions_base_pb2.py" 1>&2
 protoc third_party/bazel/protos/extra_actions_base.proto --python_out=.
 current_file=third_party/bazel/BUILD
-if [ "$force" -eq 1 ] || [ ! -f "${current_file}" ]; then
-    current_file_dir="$(dirname "${current_file}")"
+if [ "$force" -eq 1 ] || [ ! -f "$current_file" ]; then
+    current_file_dir="$(dirname "$current_file")"
 
-    mkdir -p "${current_file_dir}"
-    echo "Create ${current_file}" 1>&2
-    more > "${current_file}" <<'//MY_CODE_STREAM' 
+    mkdir -p "$current_file_dir"
+    echo "Create $current_file" 1>&2
+    more > "$current_file" <<'//MY_CODE_STREAM' 
 licenses(["notice"])
 
 py_library(
@@ -382,7 +382,7 @@ py_library(
 )
 //MY_CODE_STREAM
 else 
-echo "File ${current_file} already exists, aborted! (you can use -f option to force overwrite)" 
+echo "File $current_file already exists, aborted! (you can use -f to force overwrite)" 
 exit 1
 fi
 
