@@ -132,7 +132,7 @@ def _get_command(path, command_directory):
         "directory": "%s",
         "command": "%s",
         "file": "%s"
-      },''' % (command_directory, contents[0].replace('"', '\\"'), contents[1])
+      }''' % (command_directory, contents[0].replace('"', '\\"'), contents[1])
 
 '''
 Args:
@@ -159,10 +159,7 @@ def main(argv):
     cwd=source_path).decode('utf-8').rstrip()
   commands = _get_compile_commands(pathlib.Path(action_outs), command_directory)
   with open(os.path.join(source_path, 'compile_commands.json'), 'w') as f:
-    f.write('[')
-    for command in commands:
-      f.write(command)
-    f.write(']')
+    f.write('[{}]'.format(','.join(commands)))
 
 if __name__ == '__main__':
   sys.exit(main(sys.argv))
