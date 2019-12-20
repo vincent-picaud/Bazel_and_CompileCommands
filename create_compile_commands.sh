@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-if [ "$#" -lt 1 ]; then
-    echo "Usage: $(basename $0) BAZEL_BUILD_ARGUMENTS"
+if [ "$#" -lt 0 ]; then
+    echo "Usage: $(basename $0) [optional bazel args] BAZEL_BUILD_ARGUMENTS"
     exit 1
 fi
 

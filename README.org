@@ -27,6 +27,19 @@
   panic, maybe you are already in the right place. This link is only useful
   when this README.org file is used elsewhere).
 
+** News 
+
+   - [2019-12-20 Fri 14:36] \\
+     [[https://github.com/tangxinfa][tangxinfa]] Pull Request
+     
+     The =create_compile_commands.sh= script can now use extra arguments, by example 
+     
+     #+begin_src sh :eval never
+     create_compile_commands.sh --host_force_python=PY2 ...
+     #+end_src
+     
+     tells =bazel= to use =Python2= instead of =Python3=.
+*** [[https://github.com/tangxinfa][tangxinfa]] con
 ** Dependencies
 
    I am running under Linux, Debian testing distribution. In peculiar I have the following packages installed:
@@ -95,11 +108,27 @@ Create third_party/bazel/BUILD
  Choose a A_BAZEL_TARGET like =...= or =//my:target= and run:
 
     #+BEGIN_SRC sh :eval never :exports code
-create_compile_commands.sh A_BAZEL_TARGET
+create_compile_commands.sh [bazel extra args] A_BAZEL_TARGET
     #+END_SRC
 
     The script should generate your =compile_commands.json= file.
 
+    Usage examples:
+
+    #+begin_src sh :eval never
+create_compile_commands.sh ...
+    #+end_src
+
+    or 
+
+    #+begin_src sh :eval never
+create_compile_commands.sh \
+   --action_env CC=/usr/bin/gcc-5 \
+   --action_env CPP=/usr/bin/cpp-5 \
+   --action_env CXX=/usr/bin/c++-5 \
+   --verbose_failures //source/exe:envoy-static
+    #+end_src
+  
 * More details about the shell scripts
 
 ** The =setup_compile_commands.sh= script
@@ -159,8 +188,8 @@ exit 0
    #+BEGIN_SRC sh :tangle create_compile_commands.sh :shebang #!/bin/sh :tangle-mode (identity #o555) :exports both
 set -e
 
-if [ "$#" -lt 1 ]; then
-    echo "Usage: $(basename $0) BAZEL_BUILD_ARGUMENTS"
+if [ "$#" -lt 0 ]; then
+    echo "Usage: $(basename $0) [optional bazel args] BAZEL_BUILD_ARGUMENTS"
     exit 1
 fi
 
