@@ -39,7 +39,7 @@
      #+end_src
      
      tells =bazel= to use =Python2= instead of =Python3=.
-*** [[https://github.com/tangxinfa][tangxinfa]] con
+
 ** Dependencies
 
    I am running under Linux, Debian testing distribution. In peculiar I have the following packages installed:
