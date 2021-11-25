@@ -5,7 +5,29 @@
 #+OPTIONS: H:3 toc:t num:t \n:nil ::t |:t ^:nil -:t f:t *:t tex:t d:t tags:not-in-toc
 #+TITLE: Bazel And Compile Commands
 
-# Default Babel 
+* Table of contents                                            :TOC:noexport:
+- [[#caveat--alternatives][Caveat & Alternatives]]
+- [[#aims][Aims]]
+  - [[#dependencies][Dependencies]]
+  - [[#usage][Usage]]
+- [[#more-details-about-the-shell-scripts][More details about the shell scripts]]
+  - [[#the-setup_compile_commandssh-script][The =setup_compile_commands.sh= script]]
+  - [[#the-create_compile_commandssh-script][The =create_compile_commands.sh= script]]
+- [[#directories-and-files-creation-annex][Directories and files creation (Annex)]]
+  - [[#the-toolsactions-directory][The =tools/actions/= directory]]
+  - [[#the-third_partybazel-directory][The =third_party/bazel= directory]]
+
+* Caveat & Alternatives
+
+AFAIK this package is still working, however I do not use Bazel
+anymore and I do not intend to upgrade this solution. Here is a list
+of known possible alternatives (alphabetical order) :
+
+- [[https://github.com/grailbio/bazel-compilation-database][github/grailbio/bazel-compilation-database]]
+- [[https://github.com/hedronvision/bazel-compile-commands-extractor][github/hedronvision/bazel-compile-commands-extractor]]
+- [[https://github.com/kythe/kythe/blob/master/tools/cpp/generate_compilation_database.sh][github/kythe/kythe]]
+  
+Feel free to use the one that best fulfils your needs.
 
 * Aims
 
