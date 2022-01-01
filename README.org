@@ -27,7 +27,7 @@ of known possible alternatives (alphabetical order) :
 - [[https://github.com/hedronvision/bazel-compile-commands-extractor][github/hedronvision/bazel-compile-commands-extractor]]
 - [[https://github.com/kythe/kythe/blob/master/tools/cpp/generate_compilation_database.sh][github/kythe/kythe]]
   
-Feel free to use the one that best fulfils your needs.
+Feel free to use the one that best fulfils your needs (including my working solution :) )
 
 * Aims
 
